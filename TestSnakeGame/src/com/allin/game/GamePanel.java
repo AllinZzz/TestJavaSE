@@ -26,24 +26,10 @@ public class GamePanel extends JPanel {
     // 定义食物的坐标
     int foodX;
     int foodY;
-
-    public void init() {
-        length = 3;
-        // 蛇头坐标
-        snakeX[0] = 175;
-        snakeY[0] = 275;
-        // 初始化第一节蛇身的坐标
-        snakeX[1] = 150;
-        snakeY[1] = 275;
-        // 初始化第二节蛇身的坐标
-        snakeX[2] = 125;
-        snakeY[2] = 275;
-        // 初始化行走方向
-        direction = "R"; // R L U D
-        // 初始化食物坐标
-        foodX = 300;
-        foodY = 300;
-    }
+    // 积分
+    int score;
+    // 定义一个变量,用于记录小蛇的死亡状态
+    boolean isDie = false; // 默认情况下,小蛇非死亡状态
 
     public GamePanel() {
         init();
@@ -56,8 +42,14 @@ public class GamePanel extends JPanel {
                 int keyCode = e.getKeyCode();
                 if (keyCode == KeyEvent.VK_SPACE) {
                     System.out.println("点击了空格");
-                    isStart = !isStart;
-                    repaint();
+                    if (isDie) {
+                        isDie = false;
+                        init();
+                    } else {
+                        isStart = !isStart;
+                        repaint();
+
+                    }
                 }
                 // 监听向上箭头
                 if (keyCode == KeyEvent.VK_UP) {
@@ -81,7 +73,7 @@ public class GamePanel extends JPanel {
         timer = new Timer(100, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (isStart) {
+                if (isStart && !isDie) {
                     // 游戏开始的时候,蛇才动
                     // 后一节蛇身走到前一节蛇身的位置上
                     for (int i = length - 1; i > 0; i--) {
@@ -107,14 +99,14 @@ public class GamePanel extends JPanel {
                         snakeX[0] = 750;
                     }
                     if (snakeY[0] > 725) {
-                        snakeY[0] = 100;
+                        snakeY[0] = 60;
                     }
-                    if (snakeY[0] < 100) {
+                    if (snakeY[0] < 60) {
                         snakeY[0] = 725;
                     }
                     // 检测碰撞
                     // 如果蛇头的坐标与食物的坐标重叠, 那么认为是碰撞
-                    if (Math.abs(snakeX[0] - foodX) <= 5 && Math.abs(snakeY[0] - foodY) <= 5) {
+                    if (Math.abs(snakeX[0] - foodX) <= 10 && Math.abs(snakeY[0] - foodY) <= 10) {
                         // 首先蛇身增长1
                         length++;
                         // 然后食物改变位置
@@ -135,6 +127,15 @@ public class GamePanel extends JPanel {
                         new Random().nextInt(26) -> [0,26) ->[0,25]
                          */
                         foodY = (new Random().nextInt(26) + 4) * 25;//[100,725]
+                        score += 10;
+                    }
+
+                    // 死亡检测: 蛇头与蛇身任意一节碰撞, 则小蛇死亡
+                    for (int i = 1; i < length; i++) {
+                        if (snakeX[0] == snakeX[i] && snakeY[0] == snakeY[i]) {
+                            isDie = true;
+                            break;
+                        }
                     }
                     repaint();
                 }
@@ -142,6 +143,24 @@ public class GamePanel extends JPanel {
         });
         // 启动定时器
         timer.start();
+    }
+
+    public void init() {
+        length = 3;
+        // 蛇头坐标
+        snakeX[0] = 175;
+        snakeY[0] = 275;
+        // 初始化第一节蛇身的坐标
+        snakeX[1] = 150;
+        snakeY[1] = 275;
+        // 初始化第二节蛇身的坐标
+        snakeX[2] = 125;
+        snakeY[2] = 275;
+        // 初始化行走方向
+        direction = "R"; // R L U D
+        // 初始化食物坐标
+        foodX = 300;
+        foodY = 300;
     }
 
     /*
@@ -189,5 +208,17 @@ public class GamePanel extends JPanel {
 
         // 画食物
         Images.foodImg.paintIcon(this, g, foodX, foodY);
+
+        // 画积分
+        g.setColor(new Color(255, 255, 255, 255));
+        g.setFont(new Font("微软雅黑", Font.BOLD, 24));
+        g.drawString("积分: " + score, 620, 40);
+
+        // 画死亡状态
+        if (isDie) {
+            g.setColor(new Color(214, 121, 121, 255));
+            g.setFont(new Font("微软雅黑", Font.BOLD, 24));
+            g.drawString("小蛇已死亡,请按空格键重新开始游戏", 200, 330);
+        }
     }
 }
