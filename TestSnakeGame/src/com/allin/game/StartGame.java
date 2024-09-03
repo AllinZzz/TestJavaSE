@@ -9,6 +9,7 @@ import java.awt.*;
 public class StartGame {
     public static void main(String[] args) {
         JFrame jf = new JFrame();
+        // 测试一下push
         // 设置标题
         jf.setTitle("浩然贪吃蛇");
         // 设置窗体弹出的坐标和宽高
